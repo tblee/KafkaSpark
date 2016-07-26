@@ -4,7 +4,6 @@ import java.util.Properties
 import java.util.concurrent.{ExecutorService, Executors}
 
 import kafka.consumer.{Consumer, ConsumerConfig, KafkaStream}
-import kafka.message.MessageAndMetadata
 import com.twitter.chill.KryoInjection
 
 /**
@@ -54,7 +53,6 @@ class KafkaConsumer(val topic: String,
 
 }
 
-//case class ConsumerTaskContext(threadId: String, config: Properties)
 
 class KafkaConsumerTask(dataStream: KafkaStream[Array[Byte], Array[Byte]],
                         threadNum: Int
@@ -65,10 +63,8 @@ class KafkaConsumerTask(dataStream: KafkaStream[Array[Byte], Array[Byte]],
   override def run(): Unit = {
     try {
       println(s"Starting thread-${threadNum}")
-      dataStream foreach {
-        case msg: MessageAndMetadata[_, _] => println(s"Received message - thread-${threadNum}:" +
-          s" ${kryoDecoder.invert(msg.message).get}.")
-        case _ => println(s"Received unexpected message!! - thread-${threadNum}")
+      dataStream foreach { msg =>
+        println(s"Received message - thread-${threadNum}: ${kryoDecoder.invert(msg.message).get}.")
       }
       println(s"Consumer thread shutting down - thread-${threadNum}...")
     } catch {
