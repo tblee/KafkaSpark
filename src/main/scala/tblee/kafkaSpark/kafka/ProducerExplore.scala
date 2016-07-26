@@ -16,7 +16,8 @@ object ProducerExplore {
     val sc = new SparkContext(conf)
 
     val brokers = s"localhost:9092"
-    val topic = s"test_topic"
+    val zkConnect = s"localhost:2181"
+    val topic = s"test_topic2"
 
     val testStr: String = s"Hello World!!"
     val kryoItem: Array[Byte] = KryoInjection(testStr)
@@ -25,11 +26,14 @@ object ProducerExplore {
     println(kryoItem)
     println(kryoDecode.toString)
 
-    val producerSink = sc.broadcast(KafkaProducerSink("localhost:9092", Option("test_topic")))
+    val producerSink = sc.broadcast(KafkaProducerSink[String]("localhost:9092", Option(topic)))
 
-    val data = sc.parallelize(List(1, 2, 3, 4, 5))
+    val data = sc.parallelize(1 to 100)
     data.foreach{ value =>
       producerSink.value.send(value.toString, topic)
     }
+
+    val consumerPool = new KafkaConsumer(topic, zkConnect, 1)
+    consumerPool.startConsumers()
   }
 }

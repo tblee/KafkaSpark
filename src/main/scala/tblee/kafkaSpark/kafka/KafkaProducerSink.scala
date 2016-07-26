@@ -1,33 +1,32 @@
 package tblee.kafkaSpark.kafka
 
 import java.util.Properties
-
-import com.twitter.chill.KryoInjection
 import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
+import com.twitter.chill.KryoInjection
 
 /**
   * Created by tblee on 7/23/16.
   */
-class KafkaProducerSink(createProducer: () => KafkaProducer) extends Serializable {
+class KafkaProducerSink[T](createProducer: () => KafkaProducer) extends Serializable {
 
   lazy val kafkaProducer = createProducer()
   lazy val kryoInjector = KryoInjection
 
-  def send(value: Any, topic: String): Unit = {
+  def send(value: T, topic: String): Unit = {
     val valueToSend = kryoInjector(value)
     kafkaProducer.send(valueToSend, topic)}
 }
 
 object KafkaProducerSink {
-  def apply(brokerList: String,
-            defaultTopic: Option[String]
-           ): KafkaProducerSink = {
+  def apply[T](brokerList: String,
+               defaultTopic: Option[String]
+              ): KafkaProducerSink[T] = {
     val f = () => {
       val producer = new KafkaProducer(brokerList, defaultTopic)
       sys.addShutdownHook(producer.close)
       producer
     }
-    new KafkaProducerSink(f)
+    new KafkaProducerSink[T](f)
   }
 }
 
