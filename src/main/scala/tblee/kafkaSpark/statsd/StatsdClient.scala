@@ -9,9 +9,9 @@ import java.util.Random
 object StatsdClient extends Serializable{
 
   // Initialize with provided configurations
-  private val host = "host"
-  private val port = "port"
-  private val statPrefix = "prefix"
+  private val host = "localhost"
+  private val port = "8125"
+  private val statPrefix = "scalaTest"
 
   // Predefined Statsd parameters
   // Suffix for increment stats.

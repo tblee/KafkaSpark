@@ -1,6 +1,8 @@
 package tblee.kafkaSpark.kafka
 
+import tblee.kafkaSpark.statsd.StatsdClient
 import org.apache.spark.{SparkConf, SparkContext}
+
 
 /**
   * Created by tblee on 7/23/16.
@@ -21,6 +23,7 @@ object ProducerConsumerExplore {
     data.foreachPartition{ part =>
       part foreach { value =>
         producerSink.value.send(value.toString, topic)
+        StatsdClient.increment("emitted")
       }
     }
 
